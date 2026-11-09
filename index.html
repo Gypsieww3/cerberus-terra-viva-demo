@@ -8,7 +8,7 @@
 <div class="metrics"><div class="metric"><small>CENSO DIGITAL</small><strong id="population">—</strong></div><div class="metric"><small>HABITANTES DETALHADOS</small><strong id="detailed">—</strong></div><div class="metric"><small>DIA DA SIMULAÇÃO</small><strong id="day">—</strong></div><div class="metric"><small>REGIÕES</small><strong>05</strong></div></div>
 <main><section><div class="eyebrow">OBSERVATÓRIO</div><h2>Comunidades simuladas</h2><div id="cities">A carregar…</div><h3>Ecossistema modelado</h3><div class="ecosystem" id="eco"></div><h3>Acontecimentos registados</h3><div id="events"></div></section>
 <section class="globe-section"><div class="globe" role="img" aria-label="Globo terrestre em rotação com textura da Terra"></div><div class="globe-label"><div class="eyebrow">VISÃO PLANETÁRIA</div><strong id="focus">Planeta Terra</strong><small id="focusInfo">Seleciona uma cidade para explorar a comunidade</small></div><div class="info">A geografia visual é terrestre; as pessoas, acontecimentos e indicadores são fictícios. O globo é uma visualização, não uma simulação física integral.</div><details open style="width:100%;max-width:750px"><summary style="cursor:pointer;padding:12px;color:#95e7d8;font-weight:bold">⌑ ENTRAR NO MICROBAIRRO EXPERIMENTAL</summary><p class="info" id="districtStat">A carregar bairro…</p><canvas id="districtCanvas" width="780" height="480" aria-label="Mapa 2D de pessoas, pedras e formigas" style="display:block;width:100%;height:auto;border-radius:12px;border:1px solid #476473;background:#0b1b27;touch-action:manipulation"></canvas><p class="info">Verde: adultos · azul: crianças · cinzento: pedras · dourado: formigas. Toca num habitante para o observar. As posições são uma fotografia do último dia simulado.</p></details></section>
-<aside class="right"><div class="eyebrow">MICROSCÓPIO SOCIAL</div><h2>Vida individual</h2><div class="notice">Esta é uma <b>fotografia pública da simulação</b>. Podes consultar habitantes e acontecimentos, mas o motor de um milhão de indivíduos continua a executar no computador.</div><h3>Procurar habitantes detalhados</h3><input id="search" placeholder="Nome, profissão ou identificador…" aria-label="Pesquisar habitante"><div class="scroll-list" id="people"></div><div id="profile"></div><h3>Exemplos do censo compacto</h3><div id="sample"></div><h3>Histórias: causas → decisões → consequências</h3><div class="notice">Uma amostra dos acontecimentos simulados, guardados no momento desta publicação. Não são eventos reais nem um fluxo em tempo real.</div><div class="scroll-list" id="stories"></div></aside></main>
+<aside class="right"><div class="eyebrow">MICROSCÓPIO SOCIAL</div><h2>Vida individual</h2><div class="notice">Esta é uma <b>fotografia pública da simulação</b>. Podes consultar habitantes e acontecimentos, mas o motor de um milhão de indivíduos continua a executar no computador.</div><h3>Procurar habitantes detalhados</h3><input id="search" placeholder="Nome, profissão ou identificador…" aria-label="Pesquisar habitante"><div class="scroll-list" id="people"></div><div id="profile"></div><h3>Exemplos do censo compacto</h3><div id="sample"></div><h3>Histórias: causas → decisões → consequências</h3><div class="notice">Uma amostra dos acontecimentos simulados, guardados no momento desta publicação. Não são eventos reais nem um fluxo em tempo real.</div><div class="scroll-list" id="stories"></div><h3>Laboratório multidisciplinar</h3><div class="notice">Engenharia de software, robótica e física com equações e algoritmos de referência. São testes computacionais, não invenções novas nem experiências no mundo real.</div><div id="labSummary"></div><p><button class="action" id="labSoftware">Prova de software</button> <button class="action" id="labRobotics">Prova de robótica</button></p><div id="labDetail"></div><canvas id="labMap" width="480" height="480" aria-label="Grelha do protótipo de engenharia" style="display:block;width:100%;max-width:480px;height:auto;border:1px solid #39616f;border-radius:10px"></canvas><h3>Estudos científicos da simulação</h3><div class="scroll-list" id="mathStudies"></div><h3>Projetos registados pelos habitantes</h3><div class="scroll-list" id="engineeringStudies"></div></aside></main>
 <div class="footer">© C.E.R.B.E.R.U.S. · TERRA VIVA · DEMONSTRAÇÃO ESTÁTICA · MODELOS COMPORTAMENTAIS SIMPLIFICADOS · NÃO REPRESENTA CONSCIÊNCIA HUMANA</div>
 <script>
 let data,selectedCity=null,selectedPerson=null;
@@ -20,9 +20,63 @@ document.querySelectorAll('[data-city]').forEach(el=>el.onclick=()=>{selectedCit
 const eco=w.ecosystem;$('eco').innerHTML=[['🐜 Formigas',eco.formigas],['🕊 Aves',eco.aves],['🌿 Vegetação',eco['vegetação']+'/100'],['💧 Água',eco['qualidade_água']+'/100']].map(([k,v])=>'<div class="eco">'+safe(k)+'<b>'+safe(typeof v==='number'?num(v):v)+'</b></div>').join('');
 const city=w.cities.find(x=>x.id===selectedCity);$('focus').textContent=city?city.name:'Planeta Terra';$('focusInfo').textContent=city?(city.country+' · '+num(city.residents)+' habitantes detalhados'):'Seleciona uma cidade para explorar a comunidade';
 $('events').innerHTML=data.events.filter(e=>!selectedCity||e.city===selectedCity).slice(0,5).map(e=>'<div class="event"><small>'+safe(e.date)+' · '+safe(e.category)+'</small><b>'+safe(e.title)+'</b></div>').join('')||'<p class="info">Sem eventos nesta região.</p>';
-renderPeople();renderLife();renderDistrict();}
+renderPeople();renderLife();renderDistrict();renderPublicLabs();}
 function renderPeople(){const q=$('search').value.toLowerCase().trim();const items=data.residents.filter(p=>(!selectedCity||p.city===selectedCity)&&(!q||(p.name+' '+p.job+' '+p.id).toLowerCase().includes(q))).slice(0,60);$('people').innerHTML=items.map(p=>'<button class="person" data-person="'+safe(p.id)+'"><span><b>'+safe(p.name)+'</b><small>'+safe(p.job)+' · '+num(p.age)+' anos</small></span><span>›</span></button>').join('')||'<p class="info">Nenhum habitante encontrado.</p>';
 document.querySelectorAll('[data-person]').forEach(el=>el.onclick=()=>showPerson(el.dataset.person));if(selectedPerson)showPerson(selectedPerson);}
+function renderPublicLabs(){
+ const eng=data.engineering||{stats:{},projects:[]},physics=data.research||{stats:{},studies:[]};
+ $('labSummary').innerHTML='<div class="ecosystem">'+[
+  ['Projetos de software',eng.stats.software],['Projetos de robótica',eng.stats.robotics],
+  ['Testes sintéticos aprovados',eng.stats.synthetic_checks_passed],['Estudos físicos / matemáticos',physics.stats.studies]
+ ].map(([name,count])=>'<div class="eco">'+safe(name)+'<b>'+num(count)+'</b></div>').join('')+'</div>';
+ $('mathStudies').innerHTML=(physics.studies||[]).slice(0,12).map(s=>{
+  const p=s.study;
+  return '<div class="event"><small>DIA '+num(s.day)+' · AUTOR '+safe(s.author_id||'—')+'</small>'+
+   '<b>'+safe(p.title)+'</b><p><small>Equação: '+safe(p.equation)+'</small></p>'+
+   '<p><small>Resultados dos 3 ensaios teóricos: '+p.samples.map(x=>safe(x.result)+' '+safe(p.output_unit)).join(' · ')+
+   '</small></p><small>Sem validação em laboratório físico.</small></div>';
+ }).join('')||'<p class="info">Ainda sem estudos arquivados.</p>';
+ $('engineeringStudies').innerHTML=(eng.projects||[]).slice(0,14).map(p=>{
+  const r=p.report;
+  const val=r.discipline==='software'
+   ?'Rota '+safe(r.solution?.steps)+' passos · A* verificado por BFS'
+   :'Robô 2 rodas · distância '+safe(r.robot?.path_length_m)+' m';
+  return '<div class="event"><small>DAY '+num(p.day)+' · AUTOR '+safe(p.author_id)+
+    ' · REVISOR '+safe(p.reviewer_id||'—')+'</small><b>'+safe(r.title)+'</b>'+
+    '<p><small>'+val+'</small></p><small>Verificação computacional: '+(r.passed?'passou':'falhou')+
+    ' · validação física: não realizada</small></div>';
+ }).join('')||'<p class="info">Ainda sem casos arquivados.</p>';
+ $('labSoftware').onclick=()=>showProof('software');
+ $('labRobotics').onclick=()=>showProof('robotics');
+ showProof('software');
+}
+function showProof(kind){
+ const r=kind==='software'?data.software_proof:data.robotics_proof;
+ if(!r)return;
+ const grid=r.scenario,route=r.solution?.path||r.route?.path||[];
+ const metrics=kind==='software'
+  ?'Comparação A*: '+num(r.solution.steps)+' passos; referência BFS: '+num(r.independent_reference.steps)+' passos.'
+  :'Modelo ideal: '+safe(r.robot.path_length_m)+' m de percurso; erro final: '+safe(r.robot.goal_error_m)+' m; tempo teórico: '+safe(r.robot.duration_s_ideal)+' s.';
+ $('labDetail').innerHTML='<div class="profile"><h3>'+safe(r.title)+'</h3><p>'+safe(r.problem)+'</p>'+
+  '<p>'+metrics+'</p><p>Resultado dos testes: <b>'+(r.passed?'APROVADO':'FALHOU')+
+  '</b></p><p><small>Não foi validado com hardware nem é descoberta científica inédita.</small></p></div>';
+ const c=$('labMap'),ctx=c.getContext('2d');
+ const s=c.width/grid.width;
+ ctx.fillStyle='#0d2230';ctx.fillRect(0,0,c.width,c.height);
+ ctx.strokeStyle='#2e4a58';ctx.lineWidth=1;
+ for(let z=0;z<=grid.width;z++){ctx.beginPath();ctx.moveTo(z*s,0);ctx.lineTo(z*s,c.height);ctx.stroke();}
+ for(let z=0;z<=grid.height;z++){ctx.beginPath();ctx.moveTo(0,z*s);ctx.lineTo(c.width,z*s);ctx.stroke();}
+ for(const [x,y] of grid.blocked){ctx.fillStyle='#8f9fac';ctx.fillRect(x*s,y*s,s,s);}
+ ctx.strokeStyle='#67e5bf';ctx.lineWidth=3;ctx.beginPath();
+ for(const [i,p] of route.entries()){
+  const x=(p[0]+.5)*s,y=(p[1]+.5)*s;
+  if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+ }
+ ctx.stroke();
+ for(const [p,color] of [[grid.start,'#7cc8ff'],[grid.goal,'#ffe084']]){
+  ctx.fillStyle=color;ctx.beginPath();ctx.arc((p[0]+.5)*s,(p[1]+.5)*s,s*.28,0,2*Math.PI);ctx.fill();
+ }
+}
 function renderDistrict(){
  const n=data.neighborhood,c=$('districtCanvas');if(!n||!c)return;
  $('districtStat').textContent=num(n.pedestrians.length)+' pessoas com posições · '+num(n.rocks.length)+' pedras · '+num(n.ants.length)+' formigas modeladas · '+num(n.total_collisions)+' encontros com obstáculos';
