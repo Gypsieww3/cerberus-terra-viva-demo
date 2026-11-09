@@ -1,0 +1,20 @@
+C.E.R.B.E.R.U.S. — TERRA VIVA
+Copyright © 2026. Todos os direitos reservados.
+
+Este repositório apresenta uma demonstração pública do projeto TERRA VIVA.
+A visualização da página pública através do navegador está autorizada.
+Não é concedida uma licença de reutilização, modificação, redistribuição,
+revenda ou incorporação do código, imagens, modelo ou dados de demonstração
+noutro produto, salvo autorização expressa e escrita do titular de direitos,
+respeitando as exceções legais aplicáveis.
+
+A publicação num repositório público permite que o respetivo código seja
+consultado e tecnicamente copiado. Esta declaração não substitui medidas
+técnicas de controlo de acesso nem impede a cópia material do conteúdo.
+
+Dependências de terceiros e imagens cartográficas têm os seus próprios
+termos e licenças; a presente declaração não pretende restringir direitos
+sobre esses componentes.
+
+Dados fictícios. Este software não demonstra consciência, sensibilidade,
+descobertas científicas verificadas ou uma Terra física replicada.
