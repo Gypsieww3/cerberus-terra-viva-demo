@@ -8,7 +8,7 @@
 <div class="metrics"><div class="metric"><small>CENSO DIGITAL</small><strong id="population">—</strong></div><div class="metric"><small>HABITANTES DETALHADOS</small><strong id="detailed">—</strong></div><div class="metric"><small>DIA DA SIMULAÇÃO</small><strong id="day">—</strong></div><div class="metric"><small>REGIÕES</small><strong>05</strong></div></div>
 <main><section><div class="eyebrow">OBSERVATÓRIO</div><h2>Comunidades simuladas</h2><div id="cities">A carregar…</div><h3>Ecossistema modelado</h3><div class="ecosystem" id="eco"></div><h3>Acontecimentos registados</h3><div id="events"></div></section>
 <section class="globe-section"><div class="globe" role="img" aria-label="Globo terrestre em rotação com textura da Terra"></div><div class="globe-label"><div class="eyebrow">VISÃO PLANETÁRIA</div><strong id="focus">Planeta Terra</strong><small id="focusInfo">Seleciona uma cidade para explorar a comunidade</small></div><div class="info">A geografia visual é terrestre; as pessoas, acontecimentos e indicadores são fictícios. O globo é uma visualização, não uma simulação física integral.</div><details open style="width:100%;max-width:750px"><summary style="cursor:pointer;padding:12px;color:#95e7d8;font-weight:bold">⌑ ENTRAR NO MICROBAIRRO EXPERIMENTAL</summary><p class="info" id="districtStat">A carregar bairro…</p><canvas id="districtCanvas" width="780" height="480" aria-label="Mapa 2D de pessoas, pedras e formigas" style="display:block;width:100%;height:auto;border-radius:12px;border:1px solid #476473;background:#0b1b27;touch-action:manipulation"></canvas><p class="info">Verde: adultos · azul: crianças · cinzento: pedras · dourado: formigas. Toca num habitante para o observar. As posições são uma fotografia do último dia simulado.</p></details></section>
-<aside class="right"><div class="eyebrow">MICROSCÓPIO SOCIAL</div><h2>Vida individual</h2><div class="notice">Esta é uma <b>fotografia pública da simulação</b>. Podes consultar habitantes e acontecimentos, mas o motor de um milhão de indivíduos continua a executar no computador.</div><h3>Procurar habitantes detalhados</h3><input id="search" placeholder="Nome, profissão ou identificador…" aria-label="Pesquisar habitante"><div class="scroll-list" id="people"></div><div id="profile"></div><h3>Exemplos do censo compacto</h3><div id="sample"></div><h3>Histórias: causas → decisões → consequências</h3><div class="notice">Uma amostra dos acontecimentos simulados, guardados no momento desta publicação. Não são eventos reais nem um fluxo em tempo real.</div><div class="scroll-list" id="stories"></div><h3>Laboratório multidisciplinar</h3><div class="notice">Engenharia de software, robótica e física com equações e algoritmos de referência. São testes computacionais, não invenções novas nem experiências no mundo real.</div><div id="labSummary"></div><p><button class="action" id="labSoftware">Prova de software</button> <button class="action" id="labRobotics">Prova de robótica</button></p><div id="labDetail"></div><canvas id="labMap" width="480" height="480" aria-label="Grelha do protótipo de engenharia" style="display:block;width:100%;max-width:480px;height:auto;border:1px solid #39616f;border-radius:10px"></canvas><h3>Estudos científicos da simulação</h3><div class="scroll-list" id="mathStudies"></div><h3>Projetos registados pelos habitantes</h3><div class="scroll-list" id="engineeringStudies"></div></aside></main>
+<aside class="right"><div class="eyebrow">MICROSCÓPIO SOCIAL</div><h2>Vida individual</h2><div class="notice">Esta é uma <b>fotografia pública da simulação</b>. Podes consultar habitantes e acontecimentos, mas o motor de um milhão de indivíduos continua a executar no computador.</div><h3>Procurar habitantes detalhados</h3><input id="search" placeholder="Nome, profissão ou identificador…" aria-label="Pesquisar habitante"><div class="scroll-list" id="people"></div><div id="profile"></div><h3>Exemplos do censo compacto</h3><div id="sample"></div><h3>Histórias: causas → decisões → consequências</h3><div class="notice">Uma amostra dos acontecimentos simulados, guardados no momento desta publicação. Não são eventos reais nem um fluxo em tempo real.</div><div class="scroll-list" id="stories"></div><h3>Laboratório multidisciplinar</h3><div class="notice">Engenharia de software, robótica e física com equações e algoritmos de referência. São testes computacionais, não invenções novas nem experiências no mundo real.</div><div id="labSummary"></div><p><button class="action" id="labSoftware">Prova de software</button> <button class="action" id="labRobotics">Prova de robótica</button></p><div id="labDetail"></div><canvas id="labMap" width="480" height="480" aria-label="Grelha do protótipo de engenharia" style="display:block;width:100%;max-width:480px;height:auto;border:1px solid #39616f;border-radius:10px"></canvas><h3>Estudos científicos da simulação</h3><div class="scroll-list" id="mathStudies"></div><h3>Projetos registados pelos habitantes</h3><div class="scroll-list" id="engineeringStudies"></div><h3>Investigação evolutiva — Alpha 0.8</h3><div class="notice">Cada projeto experimenta variantes, regista falhas e compara a melhor hipótese com uma solução anterior. Melhorar uma pontuação num modelo digital não prova uma invenção real.</div><div id="evoStats"></div><p><button class="action" id="evoNav">Exemplo: navegação</button> <button class="action" id="evoHeat">Exemplo: isolamento</button></p><div id="evoDetail"></div><div class="scroll-list" id="evoProjects"></div></aside></main>
 <div class="footer">© C.E.R.B.E.R.U.S. · TERRA VIVA · DEMONSTRAÇÃO ESTÁTICA · MODELOS COMPORTAMENTAIS SIMPLIFICADOS · NÃO REPRESENTA CONSCIÊNCIA HUMANA</div>
 <script>
 let data,selectedCity=null,selectedPerson=null;
@@ -23,6 +23,60 @@ $('events').innerHTML=data.events.filter(e=>!selectedCity||e.city===selectedCity
 renderPeople();renderLife();renderDistrict();renderPublicLabs();}
 function renderPeople(){const q=$('search').value.toLowerCase().trim();const items=data.residents.filter(p=>(!selectedCity||p.city===selectedCity)&&(!q||(p.name+' '+p.job+' '+p.id).toLowerCase().includes(q))).slice(0,60);$('people').innerHTML=items.map(p=>'<button class="person" data-person="'+safe(p.id)+'"><span><b>'+safe(p.name)+'</b><small>'+safe(p.job)+' · '+num(p.age)+' anos</small></span><span>›</span></button>').join('')||'<p class="info">Nenhum habitante encontrado.</p>';
 document.querySelectorAll('[data-person]').forEach(el=>el.onclick=()=>showPerson(el.dataset.person));if(selectedPerson)showPerson(selectedPerson);}
+function renderEvoLabPublic(){
+ const evo=data.evolution||{stats:{},projects:[]};
+ const stats=evo.stats||{};
+ $('evoStats').innerHTML='<div class="ecosystem">'+[
+  ['Questões de investigação',stats.research_questions],
+  ['Gerações ensaiadas',stats.generations_tested],
+  ['Melhorias aceites no modelo',stats.validated_in_sandbox],
+  ['Experiências físicas',stats.hardware_experiments]
+ ].map(([name,value])=>'<div class="eco">'+safe(name)+'<b>'+num(value)+'</b></div>').join('')+'</div>';
+ const items=(evo.projects||[]);
+ $('evoProjects').innerHTML=items.slice(0,30).map(p=>
+  '<button class="person" data-evo-id="'+num(p.id)+'"><span><b>'+
+  (p.domain==='thermal'?'Engenharia térmica':'Software e robótica')+
+  ' · projeto '+num(p.id)+'</b><small>'+safe(p.author_id)+
+  ' · geração '+num(p.generation)+' · '+num(p.accepted)+
+  ' melhorias simuladas</small></span><span>›</span></button>').join('')||
+ '<p class="info">Nenhum projeto experimental arquivado.</p>';
+ document.querySelectorAll('[data-evo-id]').forEach(el=>el.onclick=()=>{
+  const p=items.find(q=>q.id===Number(el.dataset.evoId));
+  if(p)renderEvoReport(p);
+ });
+ $('evoNav').onclick=()=>renderEvoReport(data.evolution_navigation,'navigation');
+ $('evoHeat').onclick=()=>renderEvoReport(data.evolution_thermal,'thermal');
+ renderEvoReport(items.find(p=>p.domain==='thermal')||items[0]||data.evolution_navigation);
+}
+function renderEvoReport(item,domain){
+ if(!item)return;
+ const isDemo=!item.experiments;
+ const current=isDemo?item:(item.experiments||[])[0]?.report;
+ if(!current)return;
+ const title=(item.domain||domain)==='thermal'?'Isolamento térmico':'Navegação robusta';
+ const experiments=(current.attempts||[]).map((a,i)=>
+  '<div class="event"><small>HIPÓTESE '+(i+1)+(a.selected?' · MELHOR NO TREINO':' · NÃO ESCOLHIDA')+
+  '</small><b>'+safe(JSON.stringify(a.design))+'</b><small> · pontuação '+num(a.score)+'</small></div>').join('');
+ $('evoDetail').innerHTML='<div class="profile"><div class="eyebrow">'+
+  (isDemo?'DEMONSTRAÇÃO REPRODUZÍVEL':'ESTUDO DE HABITANTE · '+safe(item.author_id))+
+  '</div><h3>'+title+'</h3>'+
+  (isDemo?'':'<p>'+safe(item.hypothesis)+'</p>')+
+  '<p><b>Resultado:</b> '+(current.decision==='accepted_in_sandbox'?
+   'Melhoria aceite no modelo.':'A alteração foi rejeitada ou não demonstrou melhoria suficiente.')+'</p>'+
+  '<div class="values"><div>Ganho no treino<b>'+num(current.training_gain)+'</b></div>'+
+  '<div>Ganho no teste reservado<b>'+num(current.heldout_gain)+'</b></div></div>'+
+  '<p><small>Valores de uma avaliação artificial, não validação científica independente. Os parâmetros e materiais são simplificados.</small></p>'+
+  '<h3>Variantes avaliadas</h3>'+experiments+
+  '<button class="action" id="exportEvoPublic">Guardar relatório JSON</button></div>';
+ $('exportEvoPublic').onclick=()=>{
+  const report=isDemo?current:item;
+  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=u;a.download='TERRA_VIVA_experiencia_'+(item.id||domain||'exemplo')+'.json';
+  document.body.append(a);a.click();a.remove();URL.revokeObjectURL(u);
+ };
+}
 function renderPublicLabs(){
  const eng=data.engineering||{stats:{},projects:[]},physics=data.research||{stats:{},studies:[]};
  $('labSummary').innerHTML='<div class="ecosystem">'+[
@@ -48,7 +102,7 @@ function renderPublicLabs(){
  }).join('')||'<p class="info">Ainda sem casos arquivados.</p>';
  $('labSoftware').onclick=()=>showProof('software');
  $('labRobotics').onclick=()=>showProof('robotics');
- showProof('software');
+ showProof('software');renderEvoLabPublic();
 }
 function showProof(kind){
  const r=kind==='software'?data.software_proof:data.robotics_proof;

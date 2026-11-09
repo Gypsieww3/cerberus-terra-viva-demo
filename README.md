@@ -10,6 +10,11 @@ O site apresenta uma comparação entre algoritmos A* e BFS e uma simulação
 cinemática ideal de um robô diferencial. Não controla hardware nem valida
 projetos reais.
 
+A Alpha 0.8 acrescenta uma secção de **investigação evolutiva**, que mostra
+experiências paramétricas de navegação e isolamento, ganhos e falhas no
+laboratório matemático. Os resultados são uma fotografia pública de ensaios
+sintéticos. O algoritmo completo e as bases de dados permanecem privados.
+
 O motor de simulação em Python, os ficheiros binários persistentes,
 a base de dados local, os processos internos e a versão canónica em
 desenvolvimento **não são publicados aqui**.
