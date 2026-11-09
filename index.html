@@ -7,7 +7,7 @@
 <header><div><small>LABORATÓRIO C.E.R.B.E.R.U.S. · CIVILIZAÇÃO DIGITAL</small><strong>TERRA <span>VIVA</span></strong></div><div class="pill">● DEMONSTRAÇÃO ONLINE</div></header>
 <div class="metrics"><div class="metric"><small>CENSO DIGITAL</small><strong id="population">—</strong></div><div class="metric"><small>HABITANTES DETALHADOS</small><strong id="detailed">—</strong></div><div class="metric"><small>DIA DA SIMULAÇÃO</small><strong id="day">—</strong></div><div class="metric"><small>REGIÕES</small><strong>05</strong></div></div>
 <main><section><div class="eyebrow">OBSERVATÓRIO</div><h2>Comunidades simuladas</h2><div id="cities">A carregar…</div><h3>Ecossistema modelado</h3><div class="ecosystem" id="eco"></div><h3>Acontecimentos registados</h3><div id="events"></div></section>
-<section class="globe-section"><div class="globe" role="img" aria-label="Globo terrestre em rotação com textura da Terra"></div><div class="globe-label"><div class="eyebrow">VISÃO PLANETÁRIA</div><strong id="focus">Planeta Terra</strong><small id="focusInfo">Seleciona uma cidade para explorar a comunidade</small></div><div class="info">A geografia visual é terrestre; as pessoas, acontecimentos e indicadores são fictícios. O globo é uma visualização, não uma simulação física integral.</div></section>
+<section class="globe-section"><div class="globe" role="img" aria-label="Globo terrestre em rotação com textura da Terra"></div><div class="globe-label"><div class="eyebrow">VISÃO PLANETÁRIA</div><strong id="focus">Planeta Terra</strong><small id="focusInfo">Seleciona uma cidade para explorar a comunidade</small></div><div class="info">A geografia visual é terrestre; as pessoas, acontecimentos e indicadores são fictícios. O globo é uma visualização, não uma simulação física integral.</div><details open style="width:100%;max-width:750px"><summary style="cursor:pointer;padding:12px;color:#95e7d8;font-weight:bold">⌑ ENTRAR NO MICROBAIRRO EXPERIMENTAL</summary><p class="info" id="districtStat">A carregar bairro…</p><canvas id="districtCanvas" width="780" height="480" aria-label="Mapa 2D de pessoas, pedras e formigas" style="display:block;width:100%;height:auto;border-radius:12px;border:1px solid #476473;background:#0b1b27;touch-action:manipulation"></canvas><p class="info">Verde: adultos · azul: crianças · cinzento: pedras · dourado: formigas. Toca num habitante para o observar. As posições são uma fotografia do último dia simulado.</p></details></section>
 <aside class="right"><div class="eyebrow">MICROSCÓPIO SOCIAL</div><h2>Vida individual</h2><div class="notice">Esta é uma <b>fotografia pública da simulação</b>. Podes consultar habitantes e acontecimentos, mas o motor de um milhão de indivíduos continua a executar no computador.</div><h3>Procurar habitantes detalhados</h3><input id="search" placeholder="Nome, profissão ou identificador…" aria-label="Pesquisar habitante"><div class="scroll-list" id="people"></div><div id="profile"></div><h3>Exemplos do censo compacto</h3><div id="sample"></div><h3>Histórias: causas → decisões → consequências</h3><div class="notice">Uma amostra dos acontecimentos simulados, guardados no momento desta publicação. Não são eventos reais nem um fluxo em tempo real.</div><div class="scroll-list" id="stories"></div></aside></main>
 <div class="footer">© C.E.R.B.E.R.U.S. · TERRA VIVA · DEMONSTRAÇÃO ESTÁTICA · MODELOS COMPORTAMENTAIS SIMPLIFICADOS · NÃO REPRESENTA CONSCIÊNCIA HUMANA</div>
 <script>
@@ -20,9 +20,35 @@ document.querySelectorAll('[data-city]').forEach(el=>el.onclick=()=>{selectedCit
 const eco=w.ecosystem;$('eco').innerHTML=[['🐜 Formigas',eco.formigas],['🕊 Aves',eco.aves],['🌿 Vegetação',eco['vegetação']+'/100'],['💧 Água',eco['qualidade_água']+'/100']].map(([k,v])=>'<div class="eco">'+safe(k)+'<b>'+safe(typeof v==='number'?num(v):v)+'</b></div>').join('');
 const city=w.cities.find(x=>x.id===selectedCity);$('focus').textContent=city?city.name:'Planeta Terra';$('focusInfo').textContent=city?(city.country+' · '+num(city.residents)+' habitantes detalhados'):'Seleciona uma cidade para explorar a comunidade';
 $('events').innerHTML=data.events.filter(e=>!selectedCity||e.city===selectedCity).slice(0,5).map(e=>'<div class="event"><small>'+safe(e.date)+' · '+safe(e.category)+'</small><b>'+safe(e.title)+'</b></div>').join('')||'<p class="info">Sem eventos nesta região.</p>';
-renderPeople();renderLife();}
+renderPeople();renderLife();renderDistrict();}
 function renderPeople(){const q=$('search').value.toLowerCase().trim();const items=data.residents.filter(p=>(!selectedCity||p.city===selectedCity)&&(!q||(p.name+' '+p.job+' '+p.id).toLowerCase().includes(q))).slice(0,60);$('people').innerHTML=items.map(p=>'<button class="person" data-person="'+safe(p.id)+'"><span><b>'+safe(p.name)+'</b><small>'+safe(p.job)+' · '+num(p.age)+' anos</small></span><span>›</span></button>').join('')||'<p class="info">Nenhum habitante encontrado.</p>';
 document.querySelectorAll('[data-person]').forEach(el=>el.onclick=()=>showPerson(el.dataset.person));if(selectedPerson)showPerson(selectedPerson);}
+function renderDistrict(){
+ const n=data.neighborhood,c=$('districtCanvas');if(!n||!c)return;
+ $('districtStat').textContent=num(n.pedestrians.length)+' pessoas com posições · '+num(n.rocks.length)+' pedras · '+num(n.ants.length)+' formigas modeladas · '+num(n.total_collisions)+' encontros com obstáculos';
+ const ctx=c.getContext('2d'),sx=c.width/100,sy=c.height/100;
+ ctx.fillStyle='#0c2731';ctx.fillRect(0,0,c.width,c.height);
+ ctx.strokeStyle='#203e4b';ctx.lineWidth=1;
+ for(let v=0;v<=100;v+=10){ctx.beginPath();ctx.moveTo(v*sx,0);ctx.lineTo(v*sx,c.height);ctx.stroke();ctx.beginPath();ctx.moveTo(0,v*sy);ctx.lineTo(c.width,v*sy);ctx.stroke();}
+ for(const b of n.buildings){ctx.fillStyle='#225367';ctx.fillRect((b.x-1.1)*sx,(b.y-1.1)*sy,2.2*sx,2.2*sy);}
+ for(const r of n.rocks){ctx.fillStyle='#86959c';ctx.beginPath();ctx.arc(r.x*sx,r.y*sy,r.radius*Math.min(sx,sy),0,2*Math.PI);ctx.fill();}
+ for(const nest of n.nests){ctx.strokeStyle='#467e5d';ctx.beginPath();ctx.arc(nest.x*sx,nest.y*sy,3*Math.min(sx,sy),0,2*Math.PI);ctx.stroke();}
+ for(const a of n.ants){ctx.fillStyle='#f5d581';ctx.beginPath();ctx.arc(a.x*sx,a.y*sy,2,0,2*Math.PI);ctx.fill();}
+ for(const p of n.pedestrians){ctx.fillStyle=p.age<19?'#77c7ff':'#65ebc7';ctx.beginPath();ctx.arc(p.x*sx,p.y*sy,3.4,0,2*Math.PI);ctx.fill();}
+ for(const e of (n.last_events||[]).slice(-15)){ctx.strokeStyle=e.kind==='formiga'?'#ffe189':'#ffa38b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(e.x*sx,e.y*sy,8,0,2*Math.PI);ctx.stroke();}
+ c.onclick=ev=>{
+  const box=c.getBoundingClientRect(),x=(ev.clientX-box.left)/box.width*100,y=(ev.clientY-box.top)/box.height*100;
+  let closest=null,min=3.1;
+  for(const p of n.pedestrians){const d=Math.hypot(p.x-x,p.y-y);if(d<min){closest=p;min=d;}}
+  if(closest)showDistrictPerson(closest);
+ };
+}
+function showDistrictPerson(p){
+ const n=data.neighborhood;
+ const chain=(data.life?.events||[]).filter(e=>e.person_id===p.id).slice(0,5);
+ $('profile').innerHTML='<div class="profile"><div class="eyebrow">MICROBAIRRO · MS-'+String(p.id).padStart(7,'0')+'</div><h3>'+safe(p.name)+'</h3><p>'+num(p.age)+' anos · curiosidade: '+num(p.curiosity)+'/100</p><p>Posição no bairro fictício: ('+p.x+', '+p.y+')</p><p>'+safe(n.detail)+'</p>'+chain.map(e=>'<div class="event"><small>Dia '+num(e.day)+'</small><b>'+safe(e.title)+'</b><p>'+safe(e.decision)+'</p><p>'+safe(e.consequence)+'</p></div>').join('')+'</div>';
+ document.querySelector('.right').scrollIntoView({behavior:'smooth',block:'start'});
+}
 function renderLife(){
  const items=(data.sample||[]).slice(0,8);
  $('sample').innerHTML=items.map(p=>'<button class="person" data-compact="'+safe(p.id)+'"><span><b>'+safe(p.name)+'</b><small>'+safe(p.city)+' · '+safe(p.job)+'</small></span><span>›</span></button>').join('');
